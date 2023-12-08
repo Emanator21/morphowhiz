@@ -363,7 +363,7 @@ window.onload = () => {
 	
 	const englishOnly = document.getElementById("inputBox");
 	englishOnly.onkeydown = e => {
-		if(!((e.keyCode > 64 && e.keyCode < 91) || (e.keyCode > 96 && e.keyCode < 123) || e.code === 'Backspace' || e.code === 'Enter' || e.code === 'Quote' || e.code === 'Minus')) {
+		if(!((e.keyCode > 64 && e.keyCode < 91) || (e.keyCode > 96 && e.keyCode < 123) || e.code === 'Backspace' || e.key === 'Backspace' || e.code === 'Enter' || e.code === 'Quote' || e.code === 'Minus')) {
 			e.preventDefault();
 		}
 		else {
