@@ -11,35 +11,17 @@ var start = false;
 
 var rarePrompt = false;
 
-var ctx = document.getElementById("canvas1").getContext("2d");
-canvas1.width = 560;
-canvas1.height = 560;
+var ctx = document.getElementById("canvas").getContext("2d");
+canvas.width = 560;
+canvas.height = 560;
 
 var gameScore = 0;
 
 var sfxAlphaClear = new Audio("morphoAlphaClear.wav");
 sfxAlphaClear.volume = 0.4;
 
-let sfxACArray = [
-	new Audio("morphoAlphaCombo1.wav"),
-	new Audio("morphoAlphaCombo2.wav"),
-	new Audio("morphoAlphaCombo3.wav"),
-	new Audio("morphoAlphaCombo4.wav"),
-	new Audio("morphoAlphaCombo5.wav"),
-	new Audio("morphoAlphaCombo6.wav"),
-	new Audio("morphoAlphaCombo7.wav"),
-	new Audio("morphoAlphaCombo8.wav"),
-	new Audio("morphoAlphaCombo9.wav"),
-	new Audio("morphoAlphaCombo10.wav"),
-	new Audio("morphoAlphaCombo11.wav"),
-	new Audio("morphoAlphaCombo12.wav"),
-	new Audio("morphoAlphaCombo13.wav"),
-	new Audio("morphoAlphaCombo14.wav"),
-	new Audio("morphoAlphaCombo15.wav"),
-	new Audio("morphoAlphaCombo16.wav")
-];
-
-sfxACArray.forEach(audio => audio.volume = 0.1);
+var sfxAlphaLetter = new Audio("morphoAlphaLetter.wav");
+sfxAlphaLetter.volume = 0.2;
 
 var sfxCorrect = new Audio("morphoCorrect.wav");
 sfxCorrect.volume = 0.2;
@@ -91,19 +73,19 @@ function generateRPR() {
 	
 	rpr.rdI = Math.floor(Math.random() * (rpr.pickWord).length);
 	
-	if (gameScore >= 0 && gameScore <= 9) {
-		rpr.rl = Math.floor(Math.random() * 1 + 1.5);
+	if (gameScore >= 0 && gameScore <= 14) {
+		rpr.rl = Math.floor(Math.random() * 1 + 1.7);
 	}
 	
-	if (gameScore >= 10 && gameScore <= 74) {
-		rpr.rl = Math.floor(Math.random() * 1.3 + 1.8)
+	if (gameScore >= 15 && gameScore <= 125) {
+		rpr.rl = Math.floor(Math.random() * 1.4 + 1.8);
 	}
 	
-	if (gameScore >= 75 && gameScore <= 199) {
-		rpr.rl = Math.floor(Math.random() * 2 + 1.9);
+	if (gameScore >= 125 && gameScore <= 249) {
+		rpr.rl = Math.floor(Math.random() * 1.8 + 1.9);
 	}
 	
-	if (gameScore >= 200 && gameScore <= 499) {
+	if (gameScore >= 250 && gameScore <= 499) {
 		rpr.rl = Math.floor(Math.random() * 1.5 + 2.4);
 	}
 	
@@ -150,6 +132,10 @@ function generateRPR() {
 		solcount.style.color = "#444488";
 		rarePrompt = false;
 	};
+	
+	acguidetext.style['display'] = "none";
+	
+	spawnParticles(canvas.width / 2, 10, canvas.height * 0.4, 10, 20, 0, 10, 0, 10, 7, 3, 0.3, "rgba(100,100,200,0.5)", false, 0.9);
 }
 
 var takenWords = [];
@@ -157,67 +143,73 @@ var takenWords = [];
 let ttl1 = document.createElement("div")
 ttl1.id = "title1"
 ttl1.innerHTML = "Emanator's"
-ttl1.style = "font-family: Lexend; color: #222288; font-size: 20px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -490px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
+ttl1.style = "font-family: Lexend Bold; color: #222288; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -490px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl1);
 
 let ttl2 = document.createElement("div")
 ttl2.id = "title2"
 ttl2.innerHTML = "Morphowhiz"
-ttl2.style = "font-family: Lexend; color: #4444AA; font-size: 35px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -445px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
+ttl2.style = "font-family: Lexend Bold; color: #4444AA; font-size: 35px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -445px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl2);
 
 let ttl3 = document.createElement("div")
 ttl3.id = "title3"
-ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.7.7c)"
-ttl3.style = "font-family: Lexend; color: #4444AA; font-size: 10px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -390px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
+ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.8)"
+ttl3.style = "font-family: Lexend Bold; color: #4444AA; font-size: 10px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -390px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl3);
 
 let dlog = document.createElement("button")
 dlog.id = "downloadLogButton"
 dlog.type = "button"
 dlog.innerHTML = "Download Log"
-dlog.style = "display: none; background-color: #444488; border: 3px solid #111122; width: 20ch; font-family: Lexend; color: #222244; font-size: 20px; font-weight: Bold; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 40px; margin: auto; margin-top: -162px; text-align: center; text-transform: uppercase; justify-content: center; align-items: center; z-index: 10;"
+dlog.style = "display: none; background-color: #444488; border: 3px solid #111122; width: 20ch; font-family: Lexend Bold; color: #222244; font-size: 20px; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 40px; margin: auto; margin-top: -162px; text-align: center; text-transform: uppercase; justify-content: center; align-items: center; z-index: 10;"
 document.body.appendChild(dlog);
 
 let msg = document.createElement("div")
 msg.id = "message"
 msg.innerHTML = "Type an English word that contains:"
-msg.style = "font-family: Lexend; color: #444488; font-size: 20px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -250px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
+msg.style = "font-family: Lexend Bold; color: #444488; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -250px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(msg);
 
 let prmpt = document.createElement("div")
 prmpt.id = "prompt"
 prmpt.innerHTML = "―――――";
-prmpt.style = "font-family: Lexend; color: #4444AA; font-size: 125px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -110px; text-align: center; display: flex; justify-content: center; align-items: center;"
+prmpt.style = "font-family: Lexend Bold; color: #4444AA; font-size: 125px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -110px; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(prmpt);
 
 let solcount = document.createElement("div")
 solcount.id = "solutionCount"
-solcount.style = "font-family: Lexend; color: #444488; font-size: 20px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 20px; text-align: center; display: flex; justify-content: center; align-items: center;"
+solcount.style = "font-family: Lexend Bold; color: #444488; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 20px; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(solcount);
 
 let retrytext = document.createElement("div")
 retrytext.id = "alphaClearText"
 retrytext.innerHTML = "Refresh the page to try again"
-retrytext.style = "font-family: Lexend; color: #222266; font-size: 20px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 218px; padding: 0; text-align: center; display: none; justify-content: center; align-items: center;"
+retrytext.style = "font-family: Lexend Bold; color: #222266; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 218px; padding: 0; text-align: center; display: none; justify-content: center; align-items: center;"
 document.body.appendChild(retrytext);
 
+let acguidetext = document.createElement("div")
+acguidetext.id = "alphaClearGuideText"
+acguidetext.innerHTML = "Use all letters of the alphabet to get a bonus"
+acguidetext.style = "font-family: Lexend Bold; color: #555577; font-size: 15px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 210px; text-align: center; display: flex; justify-content: center; align-items: center;"
+document.body.appendChild(acguidetext);
+
 let rpstext = document.createElement("div")
-rpstext.id = "alphaClearText"
+rpstext.id = "rarePromptText"
 rpstext.innerHTML = "RARE PROMPT SOLVE! (+10)"
-rpstext.style = "font-family: Lexend; color: #CC6644; font-size: 15px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 240px; margin-right: 300px; text-align: center; display: none; justify-content: center; align-items: center;"
+rpstext.style = "font-family: Lexend Bold; color: #CC6644; font-size: 15px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 240px; margin-right: 300px; text-align: center; display: none; justify-content: center; align-items: center;"
 document.body.appendChild(rpstext);
 
 let actext = document.createElement("div")
 actext.id = "alphaClearText"
-actext.innerHTML = "ALPHA-CLEAR! (+26)"
-actext.style = "font-family: Lexend; color: #4488AA; font-size: 20px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 240px; margin-left: 300px; text-align: center; display: none; justify-content: center; align-items: center;"
+actext.innerHTML = "ALPHA-CLEAR! (+52)"
+actext.style = "font-family: Lexend Bold; color: #4488AA; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 240px; margin-left: 300px; text-align: center; display: none; justify-content: center; align-items: center;"
 document.body.appendChild(actext);
 
 let scr = document.createElement("div")
 scr.id = "score"
 scr.innerHTML = gameScore;
-scr.style = "font-family: Lexend; color: #666699; font-size: 50px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 295px; text-align: center; display: flex; justify-content: center; align-items: center;"
+scr.style = "font-family: Lexend Bold; color: #666699; font-size: 50px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 295px; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(scr);
 
 let inp = document.createElement("input")
@@ -225,25 +217,26 @@ inp.id = "inputBox"
 inp.type = "text"
 inp.maxLength = "50"
 inp.placeholder = "[CLICK HERE TO START]"
-inp.style = "background-color: #DDDDFF; border: 3px solid #222244; width: 23ch; font-family: Lexend; color: #6666AA; font-size: 30px; font-weight: Bold; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 40px; margin: auto; margin-top: 200px; text-align: center; text-transform: uppercase; display: flex; justify-content: center; align-items: center; z-index: 9;"
+inp.style = "background-color: #DDDDFF; border: 3px solid #222244; width: 23ch; font-family: Lexend Bold; color: #6666AA; font-size: 30px; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 40px; margin: auto; margin-top: 200px; text-align: center; text-transform: uppercase; display: flex; justify-content: center; align-items: center; z-index: 9;"
 document.body.appendChild(inp);
 
 let la = document.createElement("div")
 la.id = "lastAnswer"
 la.innerHTML = "[last answer goes here]"
-la.style = "font-family: Lexend; color: #8888AA; font-size: 25px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 490px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
+la.style = "font-family: Lexend Bold; color: #8888AA; font-size: 25px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 490px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(la);
-
 
 // ALPHA CLEAR MECHANIC --------
 
-const alphaClearNo = "font-family: Lexend; color: #4466AA; font-size: 28px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;";
-const alphaClearYes = "font-family: Lexend; color: #8888AA; font-size: 24px; font-weight: Bold; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;";
+const alphaClearNo = "font-family: Lexend Bold; color: #4466AA; font-size: 28px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;";
+const alphaClearYes = "font-family: Lexend Regular; color: #8888AA; font-size: 24px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;";
 
 var alphaLetter;
 
+var letters = [];
+
 function spawnAllLetters() {
-	const letters = [
+	letters = [
 		["A", -360, 80],
 		["B", -300, 80],
 		["C", -240, 80],
@@ -281,8 +274,6 @@ spawnAllLetters();
 
 var alphaWord;
 
-var alphaCombo = 0;
-
 function alphaLetter(letter, posX, posY) {
 	let acl = document.createElement("div");
 	acl.innerHTML = letter;
@@ -290,6 +281,8 @@ function alphaLetter(letter, posX, posY) {
 	acl.style = alphaClearNo;
 	acl.style['margin-left'] = posX + "px";
 	acl.style['margin-top'] = posY + "px";
+	acl.x = posX;
+	acl.y = posY;
 	
 	document.body.appendChild(acl);
 }
@@ -300,7 +293,7 @@ function checkAlphaClear() {
 	if (letterTakenArray.every(function(elem) { return elem == true })) {
 			sfxAlphaClear.currentTime = 0;
 			sfxAlphaClear.play();
-			gameScore += 26;
+			gameScore += 52;
 			scr.innerHTML = gameScore;
 			scr.style.color = "#5599BB",
 			actext.style['display'] = "flex";
@@ -315,41 +308,33 @@ function checkAlphaClear() {
 			}
 			
 			spawnAllLetters();
+			
+			spawnParticles(canvas.width / 2, canvas.width * 0.38, canvas.height * 0.6, 50, 100, 0, 3, -4, 3, 5, 3, 0.1, "rgba(80,150,180,1)", false, 0.97);
 	}
 }
 
 function checkAlphaLetter() {
-	
-	var tempCheck = 0;
-	
-	const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+	const lettersCheck = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
 	"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 	
-	for (const letterId of letters) { 
+	for (const letterId of lettersCheck) { 
 		if (alphaWord.includes(document.getElementById(letterId).id)) {
 			document.getElementById(letterId).style['color'] = "#8888AA";
 			document.getElementById(letterId).style['font-size'] = "24px";
-			document.getElementById(letterId).style['font-weight'] = "normal";
+			document.getElementById(letterId).style['font-family'] = "Lexend Regular";
 		
-			const letterIndex = letters.indexOf(letterId);
-			var letterTakenBefore = letterTakenArray[letterIndex]
+			const letterIndex = lettersCheck.indexOf(letterId);
+			var letterTakenBefore = letterTakenArray[letterIndex];
 			letterTakenArray[letterIndex] = true;
 		
 			if (letterTakenBefore == false && letterTakenArray[letterIndex] == true) {
-				
-				if (alphaCombo < 15) {
-					alphaCombo += 1;
-					tempCheck += 1;
+				sfxAlphaLetter.play();
+				for (let i = 0; i < letters.length; i++) {
+				if (document.getElementById(letterId).id == letters[i][0]) {
+						spawnParticles(canvas.width / 2 + (letters[i][1] / 2), 0, canvas.height / 2 + (letters[i][2] / 2), 0, 1, 0, 0, 0, 0, 15, 0, 0.5, "rgba(15,15,90,0.5)", false, 0);
+					}
 				}
 			}
-		}
-		
-		if (tempCheck == 0) {
-			alphaCombo = 0;
-		}
-		
-		if (alphaCombo > 0 && alphaCombo <= sfxACArray.length) {
-				sfxACArray[alphaCombo].play();
 		}
 	}
 	checkAlphaClear();
@@ -651,6 +636,8 @@ function rectangle(x, y, width, height, color) {
 			drain = 0.6 + (gameScore / 400);
 			this.width -= drain;
 			this.x += drain / 2;
+			spawnParticles(this.x + 5, 5, this.y + this.height / 2, this.height / 2, 1, -3, 1, -2, 4, 1.6, 0.8, 0.2, "rgba(34,34,68,0.5)", true, 1);
+			spawnParticles(this.x + this.width - 5, 5, this.y + this.height / 2, this.height / 2, 1, 3, 1, -2, 4, 2, 1, 0.3, "rgba(34,34,68,0.5)", true, 1);
 		}
 		else if (this.width < 1 && overOnce == false && start == true) {
 			inp.disabled = true;
@@ -669,13 +656,81 @@ function rectangle(x, y, width, height, color) {
 	};
 }
 
+// PARTICLES --------
+var dots = [];
+function dotCF(x, y, dx, dy, r, rDecay, color, gravity, slip) {
+	this.x = x;
+	this.y = y;
+	this.dx = dx;
+	this.dy = dy;
+	this.r = r;
+	this.rDecay = rDecay;
+	this.color = color;
+	this.gravity = gravity;
+	this.slip = slip;
+}
+
+function graphicsUpdate() {
+	for (let i = 0; i < dots.length; i++) {
+		dots[i].x += dots[i].dx;
+		dots[i].y += dots[i].dy;
+		
+		if (dots[i].x > canvas.width) {
+			dots[i].dx *= -1;
+			dots[i].x = canvas.width;
+		};
+		if (dots[i].y > canvas.height) {
+			dots[i].dy *= -1;
+			dots[i].y = canvas.height;
+		};
+		if (dots[i].x < 0) {
+			dots[i].dx *= -1;
+			dots[i].x = 0;
+		};
+		if (dots[i].y < 0) {
+			dots[i].dy *= -1;
+			dots[i].y = 0;
+		}
+		
+		ctx.beginPath();
+		ctx.fillStyle = dots[i].color;
+		ctx.arc(dots[i].x, dots[i].y, dots[i].r, 0, 2 * Math.PI);
+		ctx.fill();
+
+		dots[i].r -= dots[i].rDecay;
+		dots[i].dx *= dots[i].slip;
+		dots[i].dy *= dots[i].slip;
+		
+		if (dots[i].gravity == true) {
+			dots[i].dy += 0.1;
+		}
+		
+		if (dots[i].r <= 0.01) {
+			dots.splice(i, 1);
+		}
+	}
+}
+
+function spawnParticles(x, xVar, y, yVar, count, speedX, speedXVar, speedY, speedYVar, size, sizeVar, sizeDecay, color, gravity, slip) {
+	for (let i = 0; i < count; i++) {
+		var dot = new dotCF(x + ((Math.random() * xVar * 2) - xVar), y + ((Math.random() * yVar * 2) - yVar), speedX + ((Math.random() * (speedXVar * 2)) - speedXVar), speedY + ((Math.random() * (speedYVar * 2)) - speedYVar), (Math.random() * sizeVar) + size, sizeDecay, color, gravity, slip);
+		dots.push(dot);
+	}
+}
+
 // UPDATE SCREEN -------
 
 function animate() {
 	requestAnimationFrame(animate);
 	ctx.clearRect(0, 0, innerWidth, innerHeight);
-	rectTimer.timeUpdate();
 	rectTimer.update();
+	graphicsUpdate();
 }
+
+function tick() {
+	rectTimer.timeUpdate();
+}
+
+setInterval(tick, 15);
 
 animate();
