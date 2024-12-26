@@ -3,23 +3,16 @@
 function loadJS() {
 }
 
-// DICTIONARIES USED: Infochimps Word List, Collins Official Scrabble Words 2019, Enhanced North American Benchmark Lexicon 1, Letterpress 1.1, Word Bomb English Dictionary, Manually Inserted/Removed Words
+// DICTIONARIES USED: Infochimps Word List, Collins Official Scrabble Words 2019, Enhanced North American Benchmark Lexicon 1, Lettepuzzleess 1.1, Word Bomb English Dictionary, Manually Inserted/Removed Words
 
 document.body.style.backgroundColor = "#000022";
 canvas.style.background = "#AAAACC";
-
-var start = false;
-
-var rarePrompt = false;
-var restricted = false;
-var lockedLetter;
-var rngLock = Math.ceil(Math.random() * 3) + 8;
 
 var ctx = document.getElementById("canvas").getContext("2d");
 canvas.width = 560;
 canvas.height = 560;
 
-var gameScore = 0;
+// SOUND EFFECTS -------
 
 var sfxAlphaClear = new Audio("audio/morphoAlphaClear.wav");
 sfxAlphaClear.volume = 0.4;
@@ -65,13 +58,25 @@ sfxWrong.volume = 0.3;
 
 // WORD PICKER, TEXT, AND SOLUTION COUNTER -------
 
-var rpr = {}; // raw prompt
-var solutionCount;
+var start = false;
+
+var restricted = false;
+var rngLock = Math.ceil(Math.random() * 3) + 8;
+
+var gameScore = 0;
+
+var puzzle = {
+	chosenWord: "",
+	prompt: "",
+	lockedLetter: " ",
+	solutionCount: 0,
+	isRare: false
+};
 
 // probably the most common to least common
 var charList = ["E", "I", "A", "O", "N", "S", "R", "T", "L", "C", "U", "P", "D", "M", "H", "G", "Y", "B", "F", "V", "K", "W", "Z", "X", "Q", "Z"];
 
-function generateRPR() {
+function generatePuzzle() {
 	if (gameScore % rngLock == 0 && gameScore > 50) {
 		restricted = true;
 		if (Math.random() > 0.5 && rngLock > 1) {
@@ -81,54 +86,65 @@ function generateRPR() {
 		restricted = false;
 	}
 
-	rpr.filtered = ((dictionary.filter(pick => !takenWords.includes(pick)).filter(hyph => !hyph.includes("-")).filter(apos => !apos.includes("'"))));
-
-	if ((rpr.filtered).length == 0) {
-		prmpt.innerHTML = "[no more prompts]";
-	}
-	else {
-		rpr.pickWord = rpr.filtered[Math.floor(Math.random() * (rpr.filtered).length)];
-	};
-
-	rpr.rdI = Math.floor(Math.random() * (rpr.pickWord).length); // initial prompt position
-
+	let promptLength;
 	if (gameScore >= 0 && gameScore <= 14) {
-		rpr.rl = Math.floor(Math.random() * 1 + 1.7); // raw length
+		promptLength = Math.floor(Math.random() * 1 + 1.7); // raw length
 	} else if (gameScore >= 15 && gameScore <= 125) {
-		rpr.rl = Math.floor(Math.random() * 1.4 + 1.8);
+		promptLength = Math.floor(Math.random() * 1.4 + 1.8);
 	} else if (gameScore >= 125 && gameScore <= 249) {
-		rpr.rl = Math.floor(Math.random() * 1.8 + 1.9);
+		promptLength = Math.floor(Math.random() * 1.8 + 1.9);
 	} else if (gameScore >= 250 && gameScore <= 499) {
-		rpr.rl = Math.floor(Math.random() * 1.5 + 2.4);
+		promptLength = Math.floor(Math.random() * 1.5 + 2.4);
 	} else if (gameScore >= 500) {
-		rpr.rl = Math.floor(Math.random() * 0.8 + 2.9);
+		promptLength = Math.floor(Math.random() * 0.8 + 2.9);
 	}
+
+	const availableWords = dictionary.filter(word => {
+		// Filter out words that have already been used
+		if (takenWords.includes(word)) return;
+		// Filter out hyphenated words
+		if (word.includes("-")) return;
+		// Filter out words with apostrophes
+		if (word.includes("'")) return;
+		// This word is available
+		return true;
+	});
 
 	if (rpr.rdI + rpr.rl > rpr.pickWord.length) {
 		rpr.rdF = rpr.rdI - (rpr.rl - 1); // final prompt position
+	if (availableWords.length == 0) {
+		prmpt.innerHTML = "[no more prompts]";
 	}
 	else {
-		rpr.rdF = rpr.rdI;
-	}
-	rpr.prompt = (rpr.pickWord).substring((rpr.rdF), (rpr.rdF + rpr.rl));
+		puzzle.chosenWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+	};
+
+	// The highest possible index for the prompt
+	// This ensures that the random index is within the bounds of the word
+	// (if the randomIndex is at the end of the word, and the rawLength is longer than the remaining characters, the prompt will be cut off)
+	const maximumIndex = puzzle.chosenWord.length - promptLength;
+	const randomIndex = Math.floor(Math.random() * maximumIndex); // final prompt position
+	
+	puzzle.prompt = (puzzle.chosenWord).substring(randomIndex, randomIndex + promptLength);
 	clearTimeout(dlyPromptSA);
 
-	lockedLetter = " ";
+	puzzle.lockedLetter = " ";
 	if (restricted == true) {
-		let lockThres = (Math.random() * 0.35) + 0.6;
+		// Each letter in the list must clear a threshold to be locked
+		const lockThreshold = (Math.random() * 0.35) + 0.6;
 		for (let i = 0; i < charList.length; i++) {
-			if ((rpr.pickWord.indexOf(charList[i]) === -1 && Math.random() > lockThres || (i == charList.length - 1))) {
-				lockedLetter = charList[i];
+			if ((puzzle.chosenWord.indexOf(charList[i]) === -1 && Math.random() > lockThreshold || (i == charList.length - 1))) {
+				puzzle.lockedLetter = charList[i];
 				break;
 			}
 		}
-		letterRestrict(lockedLetter);
+		letterRestrict(puzzle.lockedLetter);
 	} else {
 		lockTextTop.style['display'] = "none";
 		lockTextBottom.style['display'] = "none";
 	}
 
-	if ((rpr.filtered).length == 0) {
+	if (availableWords.length == 0) {
 		prmpt.style['font-size'] = "25px";
 	}
 	else {
@@ -139,23 +155,23 @@ function generateRPR() {
 	dlyPrompt = 1;
 	sfxPrompt.play();
 
-	var solutionCount = 0;
+	puzzle.solutionCount = 0;
 
 	for (let i = 0; i < dictionary.length; i++) {
-		if (dictionary[i].includes(rpr.prompt) && dictionary[i].indexOf(lockedLetter) == -1) {
-			solutionCount += 1;
+		if (dictionary[i].includes(puzzle.prompt) && dictionary[i].indexOf(puzzle.lockedLetter) == -1) {
+			puzzle.solutionCount += 1;
 		}
 	}
 
-	solcount.innerHTML = "Solutions: " + solutionCount;
+	solcount.innerHTML = "Solutions: " + puzzle.solutionCount;
 
-	if (solutionCount < 100) {
+	if (puzzle.solutionCount < 100) {
 		solcount.style.color = "#CC6644";
-		rarePrompt = true;
+		puzzle.isRare = true;
 	}
-	else if (solutionCount >= 100) {
+	else if (puzzle.solutionCount >= 100) {
 		solcount.style.color = "#444488";
-		rarePrompt = false;
+		puzzle.isRare = false;
 	};
 
 	acguidetext.style['display'] = "none";
@@ -428,9 +444,9 @@ inputUpdate.addEventListener('input', () => {
 });
 inputUpdate.addEventListener('focus', () => {
 	if (start == false) {
-		generateRPR();
+		generatePuzzle();
 		start = true;
-		prmpt.innerHTML = rpr.prompt;
+		prmpt.innerHTML = puzzle.prompt;
 	}
 	else { };
 })
@@ -557,7 +573,7 @@ submit.addEventListener("keyup", function (event) {
 
 		if (checked == true) {
 			let answer = (document.getElementById("inputBox").value.toUpperCase());
-			if (answer.includes(rpr.prompt) && validMatch == true && duplicate == false && answer.indexOf(lockedLetter) === -1) {
+			if (answer.includes(puzzle.prompt) && validMatch == true && duplicate == false && answer.indexOf(puzzle.lockedLetter) === -1) {
 				event.preventDefault();
 				document.getElementById("submitInput").click();
 				la.innerHTML = document.getElementById("inputBox").value.toUpperCase();
@@ -570,7 +586,7 @@ submit.addEventListener("keyup", function (event) {
 					spawnParticles(canvas.width / 2, canvas.width / 2, canvas.height, 10, 1, 0, 2, 2, 1, 3, 2, 0.03, "rgba(50,50,100,0.5)", -0.01, 1);
 				}
 
-				if (rarePrompt == true) {
+				if (puzzle.isRare == true) {
 					gameScore += 10;
 					scr.style.color = "#DD7755";
 					rpstext.style['display'] = "flex";
@@ -583,13 +599,15 @@ submit.addEventListener("keyup", function (event) {
 				alphaWord = document.getElementById("inputBox").value.toUpperCase();
 				checkAlphaLetter();
 
-				generateRPR();
+				generatePuzzle();
 				rectTimer = new rectangle();
 
-				if ((rpr.filtered).length == 0) { }
-				else {
-					prmpt.innerHTML = rpr.prompt;
-				}
+				// if ((puzzle.filtered).length == 0) { }
+				// else {
+				// 	prmpt.innerHTML = puzzle.prompt;
+				// }
+
+				prmpt.innerHTML = puzzle.prompt;
 
 				sfxCorrect.currentTime = 0;
 				sfxCorrect.play();
@@ -691,7 +709,7 @@ function rectangle(x, y, width, height, color) {
 			inp.value = "";
 			inp.placeholder = "[GAME OVER]";
 			solcount.style.color = "#444488";
-			solcount.innerHTML = "GAME OVER!  |  Word Picked: " + rpr.pickWord;
+			solcount.innerHTML = "GAME OVER!  |  Word Picked: " + puzzle.chosenWord;
 			sfxGameOver.play();
 			overOnce = true;
 
