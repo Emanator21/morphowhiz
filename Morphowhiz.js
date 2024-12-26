@@ -21,46 +21,46 @@ canvas.height = 560;
 
 var gameScore = 0;
 
-var sfxAlphaClear = new Audio("morphoAlphaClear.wav");
+var sfxAlphaClear = new Audio("audio/morphoAlphaClear.wav");
 sfxAlphaClear.volume = 0.4;
 
-var sfxAlphaLetter = new Audio("morphoAlphaLetter.wav");
+var sfxAlphaLetter = new Audio("audio/morphoAlphaLetter.wav");
 sfxAlphaLetter.volume = 0.2;
 
-var sfxCorrect = new Audio("morphoCorrect.wav");
+var sfxCorrect = new Audio("audio/morphoCorrect.wav");
 sfxCorrect.volume = 0.2;
 
-var sfxEnter = new Audio("morphoEnter.wav");
+var sfxEnter = new Audio("audio/morphoEnter.wav");
 sfxEnter.volume = 0.3;
 
-var sfxGameOver = new Audio("morphoGameOver.wav");
+var sfxGameOver = new Audio("audio/morphoGameOver.wav");
 sfxGameOver.volume = 0.5;
 
-var sfxPrompt = new Audio("morphoPrompt.wav");
+var sfxPrompt = new Audio("audio/morphoPrompt.wav");
 sfxPrompt.volume = 0.4;
 
-var sfxRare = new Audio("morphoRare.wav");
+var sfxRare = new Audio("audio/morphoRare.wav");
 sfxRare.volume = 0.3;
 
-var sfxRestrict = new Audio("morphoRestrict.wav");
+var sfxRestrict = new Audio("audio/morphoRestrict.wav");
 sfxRestrict.volume = 0.15;
 
-var sfxType = new Audio("morphoType.wav");
+var sfxType = new Audio("audio/morphoType.wav");
 sfxType.volume = 0.4;
 
-var sfxType2 = new Audio("morphoType2.wav");
+var sfxType2 = new Audio("audio/morphoType2.wav");
 sfxType2.volume = 0.4;
 
-var sfxType3 = new Audio("morphoType3.wav");
+var sfxType3 = new Audio("audio/morphoType3.wav");
 sfxType3.volume = 0.4;
 
-var sfxType4 = new Audio("morphoType4.wav");
+var sfxType4 = new Audio("audio/morphoType4.wav");
 sfxType4.volume = 0.4;
 
-var sfxType5 = new Audio("morphoType5.wav");
+var sfxType5 = new Audio("audio/morphoType5.wav");
 sfxType5.volume = 0.4;
 
-var sfxWrong = new Audio("morphoWrong.wav");
+var sfxWrong = new Audio("audio/morphoWrong.wav");
 sfxWrong.volume = 0.3;
 
 // WORD PICKER, TEXT, AND SOLUTION COUNTER -------
