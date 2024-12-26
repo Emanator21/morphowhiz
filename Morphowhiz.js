@@ -3,75 +3,80 @@
 function loadJS() {
 }
 
-// DICTIONARIES USED: Infochimps Word List, Collins Official Scrabble Words 2019, Enhanced North American Benchmark Lexicon 1, Letterpress 1.1, Word Bomb English Dictionary, Manually Inserted/Removed Words
+// DICTIONARIES USED: Infochimps Word List, Collins Official Scrabble Words 2019, Enhanced North American Benchmark Lexicon 1, Lettepuzzleess 1.1, Word Bomb English Dictionary, Manually Inserted/Removed Words
 
 document.body.style.backgroundColor = "#000022";
 canvas.style.background = "#AAAACC";
-
-var start = false;
-
-var rarePrompt = false;
-var restricted = false;
-var lockedLetter;
-var rngLock = Math.ceil(Math.random() * 3) + 8;
 
 var ctx = document.getElementById("canvas").getContext("2d");
 canvas.width = 560;
 canvas.height = 560;
 
-var gameScore = 0;
+// SOUND EFFECTS -------
 
-var sfxAlphaClear = new Audio("morphoAlphaClear.wav");
+var sfxAlphaClear = new Audio("audio/morphoAlphaClear.wav");
 sfxAlphaClear.volume = 0.4;
 
-var sfxAlphaLetter = new Audio("morphoAlphaLetter.wav");
+var sfxAlphaLetter = new Audio("audio/morphoAlphaLetter.wav");
 sfxAlphaLetter.volume = 0.2;
 
-var sfxCorrect = new Audio("morphoCorrect.wav");
+var sfxCorrect = new Audio("audio/morphoCorrect.wav");
 sfxCorrect.volume = 0.2;
 
-var sfxEnter = new Audio("morphoEnter.wav");
+var sfxEnter = new Audio("audio/morphoEnter.wav");
 sfxEnter.volume = 0.3;
 
-var sfxGameOver = new Audio("morphoGameOver.wav");
+var sfxGameOver = new Audio("audio/morphoGameOver.wav");
 sfxGameOver.volume = 0.5;
 
-var sfxPrompt = new Audio("morphoPrompt.wav");
+var sfxPrompt = new Audio("audio/morphoPrompt.wav");
 sfxPrompt.volume = 0.4;
 
-var sfxRare = new Audio("morphoRare.wav");
+var sfxRare = new Audio("audio/morphoRare.wav");
 sfxRare.volume = 0.3;
 
-var sfxRestrict = new Audio("morphoRestrict.wav");
+var sfxRestrict = new Audio("audio/morphoRestrict.wav");
 sfxRestrict.volume = 0.15;
 
-var sfxType = new Audio("morphoType.wav");
+var sfxType = new Audio("audio/morphoType.wav");
 sfxType.volume = 0.4;
 
-var sfxType2 = new Audio("morphoType2.wav");
+var sfxType2 = new Audio("audio/morphoType2.wav");
 sfxType2.volume = 0.4;
 
-var sfxType3 = new Audio("morphoType3.wav");
+var sfxType3 = new Audio("audio/morphoType3.wav");
 sfxType3.volume = 0.4;
 
-var sfxType4 = new Audio("morphoType4.wav");
+var sfxType4 = new Audio("audio/morphoType4.wav");
 sfxType4.volume = 0.4;
 
-var sfxType5 = new Audio("morphoType5.wav");
+var sfxType5 = new Audio("audio/morphoType5.wav");
 sfxType5.volume = 0.4;
 
-var sfxWrong = new Audio("morphoWrong.wav");
+var sfxWrong = new Audio("audio/morphoWrong.wav");
 sfxWrong.volume = 0.3;
 
 // WORD PICKER, TEXT, AND SOLUTION COUNTER -------
 
-var rpr = {}; // raw prompt
-var solutionCount;
+var start = false;
+
+var restricted = false;
+var rngLock = Math.ceil(Math.random() * 3) + 8;
+
+var gameScore = 0;
+
+var puzzle = {
+	chosenWord: "",
+	prompt: "",
+	lockedLetter: " ",
+	solutionCount: 0,
+	isRare: false
+};
 
 // probably the most common to least common
-var charList = ["E","I","A","O","N","S","R","T","L","C","U","P","D","M","H","G","Y","B","F","V","K","W","Z","X","Q","Z"];
+var charList = ["E", "I", "A", "O", "N", "S", "R", "T", "L", "C", "U", "P", "D", "M", "H", "G", "Y", "B", "F", "V", "K", "W", "Z", "X", "Q", "Z"];
 
-function generateRPR() {
+function generatePuzzle() {
 	if (gameScore % rngLock == 0 && gameScore > 50) {
 		restricted = true;
 		if (Math.random() > 0.5 && rngLock > 1) {
@@ -80,86 +85,108 @@ function generateRPR() {
 	} else {
 		restricted = false;
 	}
-	
-    rpr.filtered = ((dictionary.filter(pick => !takenWords.includes(pick)).filter(hyph => !hyph.includes("-")).filter(apos => !apos.includes("'"))));
-	
-	if ((rpr.filtered).length == 0) {
+
+	let promptLength;
+	if (gameScore >= 0 && gameScore <= 14) {
+		promptLength = Math.floor(Math.random() * 1 + 1.7); // raw length
+	} else if (gameScore >= 15 && gameScore <= 125) {
+		promptLength = Math.floor(Math.random() * 1.4 + 1.8);
+	} else if (gameScore >= 125 && gameScore <= 249) {
+		promptLength = Math.floor(Math.random() * 1.8 + 1.9);
+	} else if (gameScore >= 250 && gameScore <= 499) {
+		promptLength = Math.floor(Math.random() * 1.5 + 2.4);
+	} else if (gameScore >= 500) {
+		promptLength = Math.floor(Math.random() * 0.8 + 2.9);
+	}
+
+	const availableWords = dictionary.filter(word => {
+		// Filter out words that have already been used
+		if (takenWords.includes(word)) return;
+		// Filter out hyphenated words
+		if (word.includes("-")) return;
+		// Filter out words with apostrophes
+		if (word.includes("'")) return;
+		// This word is available
+		return true;
+	});
+
+	const preferableWords = availableWords.filter(word => {
+		// Filter out words that are too short to be prompts (the word is the length of the prompt or shorter)
+		// If the word is the same length as the prompt, the player probably will likely solve it with the word
+		if (word.length <= promptLength) return;
+		// This word is preferable
+		return true;
+	});
+
+	if (availableWords.length == 0) {
 		prmpt.innerHTML = "[no more prompts]";
 	}
 	else {
-		rpr.pickWord = rpr.filtered[Math.floor(Math.random()*(rpr.filtered).length)];
+		// Preferably, choose a word from the preferableWords if it's not empty
+		if (preferableWords.length > 0) {
+			puzzle.chosenWord = preferableWords[Math.floor(Math.random() * preferableWords.length)];
+		} else {
+			puzzle.chosenWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+		}
 	};
+
+	// The highest possible index for the prompt
+	// This ensures that the random index is within the bounds of the word
+	// (if the randomIndex is at the end of the word, and the rawLength is longer than the remaining characters, the prompt will be cut off)
+	const maximumIndex = puzzle.chosenWord.length - promptLength;
+	const randomIndex = Math.floor(Math.random() * maximumIndex); // final prompt position
 	
-	rpr.rdI = Math.floor(Math.random() * (rpr.pickWord).length); // initial prompt position
-	
-	if (gameScore >= 0 && gameScore <= 14) {
-		rpr.rl = Math.floor(Math.random() * 1 + 1.7); // raw length
-	} else if (gameScore >= 15 && gameScore <= 125) {
-		rpr.rl = Math.floor(Math.random() * 1.4 + 1.8);
-	} else if (gameScore >= 125 && gameScore <= 249) {
-		rpr.rl = Math.floor(Math.random() * 1.8 + 1.9);
-	} else if (gameScore >= 250 && gameScore <= 499) {
-		rpr.rl = Math.floor(Math.random() * 1.5 + 2.4);
-	} else if (gameScore >= 500) {
-		rpr.rl = Math.floor(Math.random() * 0.8 + 2.9);
-	}
-	
-	if (rpr.rdI + rpr.rl > rpr.pickWord.length) {
-		rpr.rdF = rpr.rdI - (rpr.rl - 1); // final prompt position
-	}
-	else {
-		rpr.rdF = rpr.rdI;
-	}
-	rpr.prompt = (rpr.pickWord).substring((rpr.rdF), (rpr.rdF + rpr.rl));
+	puzzle.prompt = (puzzle.chosenWord).substring(randomIndex, randomIndex + promptLength);
 	clearTimeout(dlyPromptSA);
-	
-	lockedLetter = " ";
+
+	puzzle.lockedLetter = " ";
 	if (restricted == true) {
-		let lockThres = (Math.random() * 0.35) + 0.6;
+		// Each letter in the list must clear a threshold to be locked
+		const lockThreshold = (Math.random() * 0.35) + 0.6;
 		for (let i = 0; i < charList.length; i++) {
-			if ((rpr.pickWord.indexOf(charList[i]) === -1 && Math.random() > lockThres || (i == charList.length - 1))) {
-				lockedLetter = charList[i];
+			if ((puzzle.chosenWord.indexOf(charList[i]) === -1 && Math.random() > lockThreshold || (i == charList.length - 1))) {
+				puzzle.lockedLetter = charList[i];
 				break;
 			}
 		}
-		letterRestrict(lockedLetter);
+		letterRestrict(puzzle.lockedLetter);
 	} else {
 		lockTextTop.style['display'] = "none";
 		lockTextBottom.style['display'] = "none";
 	}
-	
-	if ((rpr.filtered).length == 0) {
+
+	if (availableWords.length == 0) {
 		prmpt.style['font-size'] = "25px";
 	}
 	else {
 		prmpt.style['font-size'] = "75px";
 		promptSizeAnimate();
 	};
-	
+
 	dlyPrompt = 1;
 	sfxPrompt.play();
-	
-	var solutionCount = 0;
-	
+
+	puzzle.solutionCount = 0;
+
 	for (let i = 0; i < dictionary.length; i++) {
-		if (dictionary[i].includes(rpr.prompt) && dictionary[i].indexOf(lockedLetter) == -1) {
-			solutionCount += 1;
+		if (dictionary[i].includes(puzzle.prompt) && dictionary[i].indexOf(puzzle.lockedLetter) == -1) {
+			puzzle.solutionCount += 1;
 		}
 	}
-	
-	solcount.innerHTML = "Solutions: " + solutionCount;
-	
-	if (solutionCount < 100) {
+
+	solcount.innerHTML = "Solutions: " + puzzle.solutionCount;
+
+	if (puzzle.solutionCount < 100) {
 		solcount.style.color = "#CC6644";
-		rarePrompt = true;
+		puzzle.isRare = true;
 	}
-	else if (solutionCount >= 100) {
+	else if (puzzle.solutionCount >= 100) {
 		solcount.style.color = "#444488";
-		rarePrompt = false;
+		puzzle.isRare = false;
 	};
-	
+
 	acguidetext.style['display'] = "none";
-	
+
 	spawnParticles(canvas.width / 2, 10, canvas.height * 0.4, 10, 20, 0, 10, 0, 10, 7, 3, 0.3, "rgba(100,100,200,0.5)", 0, 0.9);
 }
 
@@ -301,7 +328,7 @@ function spawnAllLetters() {
 		["Y", 300, 160],
 		["Z", 360, 160]
 	];
-	
+
 	for (const letterData of letters) {
 		new alphaLetter(...letterData);
 	}
@@ -320,58 +347,58 @@ function alphaLetter(letter, posX, posY) {
 	acl.style['margin-top'] = posY + "px";
 	acl.x = posX;
 	acl.y = posY;
-	
+
 	document.body.appendChild(acl);
 }
 
 var letterTakenArray = new Array(26).fill(false);
 
 function checkAlphaClear() {
-	if (letterTakenArray.every(function(elem) { return elem == true })) {
-			sfxAlphaClear.currentTime = 0;
-			sfxAlphaClear.play();
-			gameScore += 52;
-			scr.innerHTML = gameScore;
-			scr.style.color = "#5599BB",
+	if (letterTakenArray.every(function (elem) { return elem == true })) {
+		sfxAlphaClear.currentTime = 0;
+		sfxAlphaClear.play();
+		gameScore += 52;
+		scr.innerHTML = gameScore;
+		scr.style.color = "#5599BB",
 			actext.style['display'] = "flex";
-			if (rngLock > 1) {
-				rngLock--;
-			}
-			
-			letterTakenArray.fill(false);
-			
-			const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+		if (rngLock > 1) {
+			rngLock--;
+		}
+
+		letterTakenArray.fill(false);
+
+		const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
 			"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-			
-			for (const letterId of letters) {
-				document.getElementById(letterId).remove();
-			}
-			
-			spawnAllLetters();
-			
-			spawnParticles(canvas.width / 2, canvas.width * 0.38, canvas.height * 0.6, 50, 100, 0, 3, -4, 3, 5, 3, 0.1, "rgba(80,150,180,1)", 0, 0.97);
+
+		for (const letterId of letters) {
+			document.getElementById(letterId).remove();
+		}
+
+		spawnAllLetters();
+
+		spawnParticles(canvas.width / 2, canvas.width * 0.38, canvas.height * 0.6, 50, 100, 0, 3, -4, 3, 5, 3, 0.1, "rgba(80,150,180,1)", 0, 0.97);
 	}
 }
 
 function checkAlphaLetter() {
 	const lettersCheck = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-	"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-	
-	for (const letterId of lettersCheck) { 
+		"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+
+	for (const letterId of lettersCheck) {
 		if (alphaWord.includes(document.getElementById(letterId).id)) {
 			document.getElementById(letterId).style['color'] = "#8888AA";
 			document.getElementById(letterId).style['font-size'] = "24px";
 			document.getElementById(letterId).style['font-family'] = "Lexend Regular";
-		
+
 			const letterIndex = lettersCheck.indexOf(letterId);
 			var letterTakenBefore = letterTakenArray[letterIndex];
 			letterTakenArray[letterIndex] = true;
-		
+
 			if (letterTakenBefore == false && letterTakenArray[letterIndex] == true) {
 				sfxAlphaLetter.currentTime = 0;
 				sfxAlphaLetter.play();
 				for (let i = 0; i < letters.length; i++) {
-				if (document.getElementById(letterId).id == letters[i][0]) {
+					if (document.getElementById(letterId).id == letters[i][0]) {
 						spawnParticles(canvas.width / 2 + (letters[i][1] / 2), 0, canvas.height / 2 + (letters[i][2] / 2), 0, 1, 0, 0, 0, 0, 15, 0, 0.5, "rgba(15,15,90,0.5)", 0, 0);
 					}
 				}
@@ -386,14 +413,14 @@ function checkAlphaLetter() {
 window.onload = () => {
 	const antiPaste = document.getElementById("inputBox");
 	antiPaste.onpaste = e => e.preventDefault();
-	
+
 	const englishOnly = document.getElementById("inputBox");
 	englishOnly.onkeydown = e => {
-		if(!((e.keyCode > 64 && e.keyCode < 91) || (e.keyCode > 96 && e.keyCode < 123) || e.code === 'Backspace' || e.key === 'Backspace' || e.code === 'Enter' || e.code === 'Quote' || e.code === 'Minus')) {
+		if (!((e.keyCode > 64 && e.keyCode < 91) || (e.keyCode > 96 && e.keyCode < 123) || e.code === 'Backspace' || e.key === 'Backspace' || e.code === 'Enter' || e.code === 'Quote' || e.code === 'Minus')) {
 			e.preventDefault();
 		}
 		else {
-				var picker = Math.floor(Math.random() * 5);
+			var picker = Math.floor(Math.random() * 5);
 			if (picker == 0) {
 				sfxType.currentTime = 0;
 				sfxType.play();
@@ -428,11 +455,11 @@ inputUpdate.addEventListener('input', () => {
 });
 inputUpdate.addEventListener('focus', () => {
 	if (start == false) {
-		generateRPR();
+		generatePuzzle();
 		start = true;
-		prmpt.innerHTML = rpr.prompt;
+		prmpt.innerHTML = puzzle.prompt;
 	}
-	else {};
+	else { };
 })
 
 var answerLength = 0;
@@ -518,11 +545,11 @@ var validMatch = false;
 var duplicate = false;
 var checked = false;
 var submit = document.getElementById("inputBox");
-submit.addEventListener("keyup", function(event) {
+submit.addEventListener("keyup", function (event) {
 	if (event.keyCode === 13) {
 		sfxEnter.currentTime = 0;
 		sfxEnter.play();
-		
+
 		if (dictionary.indexOf((inp.value).toUpperCase()) !== -1) {
 			validMatch = true;
 			if (takenWords.indexOf((inp.value).toUpperCase()) !== -1) {
@@ -540,7 +567,7 @@ submit.addEventListener("keyup", function(event) {
 				clearTimeout(dlyInputPAW);
 				dlyInput = 1;
 				inputPosAnimateW();
-				
+
 				duplicate = false;
 				checked = true;
 			}
@@ -554,79 +581,81 @@ submit.addEventListener("keyup", function(event) {
 			sfxWrong.play();
 			checked = true;
 		};
-		
+
 		if (checked == true) {
 			let answer = (document.getElementById("inputBox").value.toUpperCase());
-			if (answer.includes(rpr.prompt) && validMatch == true && duplicate == false && answer.indexOf(lockedLetter) === -1) {
+			if (answer.includes(puzzle.prompt) && validMatch == true && duplicate == false && answer.indexOf(puzzle.lockedLetter) === -1) {
 				event.preventDefault();
 				document.getElementById("submitInput").click();
 				la.innerHTML = document.getElementById("inputBox").value.toUpperCase();
 				takenWords.push(document.getElementById("inputBox").value.toUpperCase());
 				answerLength = document.getElementById("inputBox").value.length;
-				
+
 				gameScore += answerLength;
-				
+
 				for (let i = 0; i < answerLength; i++) {
 					spawnParticles(canvas.width / 2, canvas.width / 2, canvas.height, 10, 1, 0, 2, 2, 1, 3, 2, 0.03, "rgba(50,50,100,0.5)", -0.01, 1);
 				}
-				
-				if (rarePrompt == true) {
+
+				if (puzzle.isRare == true) {
 					gameScore += 10;
 					scr.style.color = "#DD7755";
 					rpstext.style['display'] = "flex";
 					sfxRare.currentTime = 0;
 					sfxRare.play();
 				}
-				
+
 				scr.innerHTML = gameScore;
-				
+
 				alphaWord = document.getElementById("inputBox").value.toUpperCase();
 				checkAlphaLetter();
-				
-				generateRPR();
+
+				generatePuzzle();
 				rectTimer = new rectangle();
-				
-				if ((rpr.filtered).length == 0) {}
-				else {
-					prmpt.innerHTML = rpr.prompt;
-				}
-				
+
+				// if ((puzzle.filtered).length == 0) { }
+				// else {
+				// 	prmpt.innerHTML = puzzle.prompt;
+				// }
+
+				prmpt.innerHTML = puzzle.prompt;
+
 				sfxCorrect.currentTime = 0;
 				sfxCorrect.play();
-				
+
 				inp.style['margin-top'] = "215px";
 				clearTimeout(dlyInputPAC);
 				dlyInput = 1;
-				
+
 				scr.style['font-size'] = "60px";
 				clearTimeout(dlyScore);
 				dlyScore = 0.5;
-				
+
 				la.style['margin-top'] = "420px";
 				clearTimeout(dlyLastAnswer);
 				dlyLastAnswer = 0.5;
-				
+
 				scoreSizeAnimate();
 				laPosAnimate();
 				inputPosAnimateC();
-				
+
 				validMatch = false;
 				duplicate = false;
 				checked = false;
-				
+
 				inp.value = "";
 			}
 			else {
 				inp.placeholder = document.getElementById("inputBox").value.toUpperCase();
 				inp.value = "";
-				
+
 				clearTimeout(dlyInputPAW);
 				dlyInput = 1;
 				inputPosAnimateW();
-				
+
 				sfxWrong.currentTime = 0;
 				sfxWrong.play();
-				
+
 				match = false;
 				checked = false;
 			}
@@ -637,8 +666,8 @@ submit.addEventListener("keyup", function(event) {
 // LOG DOWNLOAD --------
 
 function downloadWordLog(filename, content) {
-	var blob = new Blob([content], {type: "text/csv"});
-	if(window.navigator.msSaveOrOpenBlob) {
+	var blob = new Blob([content], { type: "text/csv" });
+	if (window.navigator.msSaveOrOpenBlob) {
 		window.navigator.msSaveBlob(blob, filename);
 	}
 	else {
@@ -653,7 +682,7 @@ function downloadWordLog(filename, content) {
 
 downloadLogButton.addEventListener("click", () => {
 	const date = new Date();
-	
+
 	var filenameLog = "wordLog" + date.getTime() + ".txt";
 	var contentLog = "SCORE: " + gameScore + ", WORDS: " + takenWords;
 	downloadWordLog(filenameLog, contentLog);
@@ -672,12 +701,12 @@ function rectangle(x, y, width, height, color) {
 	this.y = 112;
 	this.width = 560;
 	this.height = 14;
-	this.update = function() {
+	this.update = function () {
 		ctx.fillStyle = color;
 		color = "#222244";
 		ctx.fillRect(this.x, this.y, this.width, this.height);
 	};
-	this.timeUpdate = function() {
+	this.timeUpdate = function () {
 		var drain;
 		if (this.width > 0 && start == true) {
 			drain = 0.6 + (gameScore / 400);
@@ -691,10 +720,10 @@ function rectangle(x, y, width, height, color) {
 			inp.value = "";
 			inp.placeholder = "[GAME OVER]";
 			solcount.style.color = "#444488";
-			solcount.innerHTML = "GAME OVER!  |  Word Picked: " + rpr.pickWord;
+			solcount.innerHTML = "GAME OVER!  |  Word Picked: " + puzzle.chosenWord;
 			sfxGameOver.play();
 			overOnce = true;
-			
+
 			rpstext.style['display'] = "none";
 			actext.style['display'] = "none";
 			retrytext.style['display'] = "flex";
@@ -707,9 +736,9 @@ function rectangle(x, y, width, height, color) {
 function letterRestrict(lock) {
 	sfxRestrict.currentTime = 0;
 	sfxRestrict.play();
-	
+
 	lockTextBottom.textContent = lock;
-	
+
 	lockTextTop.style['display'] = "flex";
 	lockTextBottom.style['display'] = "flex";
 }
@@ -732,11 +761,11 @@ function graphicsUpdate() {
 	if ((Math.random() * 10) > 5 && start == true && overOnce == false) {
 		spawnParticles(canvas.width / 2, canvas.width / 2, canvas.height, 10, 1, 0, -2, -2, 1, 1, 0.5, 0.02, "rgba(50,50,100,1)", -0.001, 1);
 	}
-	
+
 	for (let i = 0; i < dots.length; i++) {
 		dots[i].x += dots[i].dx;
 		dots[i].y += dots[i].dy;
-		
+
 		if (dots[i].x > canvas.width) {
 			dots[i].dx *= -1;
 			dots[i].x = canvas.width;
@@ -753,7 +782,7 @@ function graphicsUpdate() {
 			dots[i].dy *= -1;
 			dots[i].y = 0;
 		}
-		
+
 		ctx.beginPath();
 		ctx.fillStyle = dots[i].color;
 		ctx.arc(dots[i].x, dots[i].y, dots[i].r, 0, 2 * Math.PI);
@@ -762,9 +791,9 @@ function graphicsUpdate() {
 		dots[i].r -= dots[i].rDecay;
 		dots[i].dx *= dots[i].slip;
 		dots[i].dy *= dots[i].slip;
-		
+
 		dots[i].dy += dots[i].gravity;
-		
+
 		if (dots[i].r <= 0.01) {
 			dots.splice(i, 1);
 		}
