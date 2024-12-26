@@ -110,13 +110,24 @@ function generatePuzzle() {
 		return true;
 	});
 
-	if (rpr.rdI + rpr.rl > rpr.pickWord.length) {
-		rpr.rdF = rpr.rdI - (rpr.rl - 1); // final prompt position
+	const preferableWords = availableWords.filter(word => {
+		// Filter out words that are too short to be prompts (the word is the length of the prompt or shorter)
+		// If the word is the same length as the prompt, the player probably will likely solve it with the word
+		if (word.length <= promptLength) return;
+		// This word is preferable
+		return true;
+	});
+
 	if (availableWords.length == 0) {
 		prmpt.innerHTML = "[no more prompts]";
 	}
 	else {
-		puzzle.chosenWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+		// Preferably, choose a word from the preferableWords if it's not empty
+		if (preferableWords.length > 0) {
+			puzzle.chosenWord = preferableWords[Math.floor(Math.random() * preferableWords.length)];
+		} else {
+			puzzle.chosenWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+		}
 	};
 
 	// The highest possible index for the prompt
