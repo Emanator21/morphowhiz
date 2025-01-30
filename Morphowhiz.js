@@ -6,7 +6,7 @@ function loadJS() {
 // DICTIONARIES USED: Infochimps Word List, Collins Official Scrabble Words 2019, Enhanced North American Benchmark Lexicon 1, Letterpress 1.1, Word Bomb English Dictionary, Manually Inserted/Removed Words
 
 document.body.style.backgroundColor = "#000022";
-canvas.style.background = "#AAAACC";
+canvas.style.background = "#BBBBDD";
 
 var start = false;
 
@@ -14,12 +14,19 @@ var rarePrompt = false;
 var restricted = false;
 var lockedLetter;
 var rngLock = Math.ceil(Math.random() * 3) + 8;
+var alert = false;
 
 var ctx = document.getElementById("canvas").getContext("2d");
 canvas.width = 560;
 canvas.height = 560;
 
 var gameScore = 0;
+
+var timerWidth = canvas.width;
+var drain;
+
+var sfxAlert = new Audio("morphoAlert.wav");
+sfxAlert.volume = 0.7;
 
 var sfxAlphaClear = new Audio("morphoAlphaClear.wav");
 sfxAlphaClear.volume = 0.4;
@@ -41,6 +48,9 @@ sfxPrompt.volume = 0.4;
 
 var sfxRare = new Audio("morphoRare.wav");
 sfxRare.volume = 0.3;
+
+var sfxRestart = new Audio("morphoRestart.wav");
+sfxRestart.volume = 0.7;
 
 var sfxRestrict = new Audio("morphoRestrict.wav");
 sfxRestrict.volume = 0.15;
@@ -72,6 +82,8 @@ var solutionCount;
 var charList = ["E","I","A","O","N","S","R","T","L","C","U","P","D","M","H","G","Y","B","F","V","K","W","Z","X","Q","Z"];
 
 function generateRPR() {
+	timerWidth = canvas.width;
+	
 	if (gameScore % rngLock == 0 && gameScore > 50) {
 		restricted = true;
 		if (Math.random() > 0.5 && rngLock > 1) {
@@ -161,6 +173,8 @@ function generateRPR() {
 	acguidetext.style['display'] = "none";
 	
 	spawnParticles(canvas.width / 2, 10, canvas.height * 0.4, 10, 20, 0, 10, 0, 10, 7, 3, 0.3, "rgba(100,100,200,0.5)", 0, 0.9);
+	
+	alert = false;
 }
 
 var takenWords = [];
@@ -179,16 +193,16 @@ document.body.appendChild(ttl2);
 
 let ttl3 = document.createElement("div")
 ttl3.id = "title3"
-ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.9)"
+ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10)"
 ttl3.style = "font-family: Lexend Bold; color: #4444AA; font-size: 10px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -390px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl3);
 
-let dlog = document.createElement("button")
-dlog.id = "downloadLogButton"
-dlog.type = "button"
-dlog.innerHTML = "Download Log"
-dlog.style = "display: none; background-color: #444488; border: 3px solid #111122; width: 20ch; font-family: Lexend Bold; color: #222244; font-size: 20px; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 40px; margin: auto; margin-top: -162px; text-align: center; text-transform: uppercase; justify-content: center; align-items: center; z-index: 10;"
-document.body.appendChild(dlog);
+let restartButton = document.createElement("button")
+restartButton.id = "restartButton"
+restartButton.type = "button"
+restartButton.innerHTML = "RESTART"
+restartButton.style = "display: none; background-color: #444488; border: 3px solid #111122; width: 12ch; font-family: Lexend Bold; color: #222244; font-size: 20px; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 40px; margin: auto; margin-top: -162px; text-align: center; text-transform: uppercase; justify-content: center; align-items: center; z-index: 10;"
+document.body.appendChild(restartButton);
 
 let msg = document.createElement("div")
 msg.id = "message"
@@ -219,11 +233,12 @@ solcount.id = "solutionCount"
 solcount.style = "font-family: Lexend Bold; color: #444488; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 20px; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(solcount);
 
-let retrytext = document.createElement("div")
-retrytext.id = "alphaClearText"
-retrytext.innerHTML = "Refresh the page to try again"
-retrytext.style = "font-family: Lexend Bold; color: #222266; font-size: 20px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: 218px; padding: 0; text-align: center; display: none; justify-content: center; align-items: center;"
-document.body.appendChild(retrytext);
+let dlog = document.createElement("button")
+dlog.id = "downloadLogButton"
+dlog.type = "button"
+dlog.innerHTML = "Download Log"
+dlog.style = "display: none; background-color: #333366; border: 2px solid #111122; width: 16ch; font-family: Lexend Bold; color: #111122; font-size: 12px; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 24px; margin: auto; margin-top: 110px; text-align: center; text-transform: uppercase; justify-content: center; align-items: center; z-index: 10;"
+document.body.appendChild(dlog);
 
 let acguidetext = document.createElement("div")
 acguidetext.id = "alphaClearGuideText"
@@ -651,6 +666,47 @@ function downloadWordLog(filename, content) {
 	}
 }
 
+// RESTART --------
+
+restartButton.addEventListener("click", () => {
+	start = false;
+	rarePrompt = false;
+	restricted = false;
+	rngLock = Math.ceil(Math.random() * 3) + 8;
+	alert = false;
+	gameScore = 0;
+	
+	inp.disabled = false;
+	inp.value = "";
+	inp.placeholder = "[CLICK HERE TO START]";
+	solcount.style.color = "#444488";
+	overOnce = false;
+			
+	canvas.style.background = "#BBBBDD";
+	restartButton.style['display'] = "none";
+	dlog.style['display'] = "none";
+	acguidetext.style['display'] = "flex";
+	solcount.innerHTML = "";
+	
+	const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+			"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]	
+	for (const letterId of letters) {
+		document.getElementById(letterId).remove();
+	}
+	spawnAllLetters();
+	
+	takenWords = [];
+	
+	timerWidth = canvas.width;
+	rectTimer.widthRestart();
+	prmpt.innerHTML = "―――――";
+	
+	la.innerHTML = "[last answer goes here]";
+	scr.innerHTML = "0";
+	
+	sfxRestart.play();
+});
+
 downloadLogButton.addEventListener("click", () => {
 	const date = new Date();
 	
@@ -674,19 +730,22 @@ function rectangle(x, y, width, height, color) {
 	this.height = 14;
 	this.update = function() {
 		ctx.fillStyle = color;
-		color = "#222244";
+		color = this.width > 100 ? "#222244" : "#AA0000";
 		ctx.fillRect(this.x, this.y, this.width, this.height);
 	};
-	this.timeUpdate = function() {
-		var drain;
-		if (this.width > 0 && start == true) {
-			drain = 0.6 + (gameScore / 400);
-			this.width -= drain;
-			this.x += drain / 2;
-			spawnParticles(this.x + 5, 5, this.y + this.height / 2, this.height / 2, 1, -3, 1, -3, 4, 4, 3, 1, "rgba(34,34,68,0.3)", 0.1, 1);
-			spawnParticles(this.x + this.width - 5, 5, this.y + this.height / 2, this.height / 2, 1, 3, 1, -3, 4, 4, 3, 1, "rgba(34,34,68,0.3)", 0.1, 1);
+	this.widthUpdate = function() {
+		if (timerWidth > 0 && start == true) {
+			this.width = timerWidth;
+			this.x = (canvas.width / 2) - (timerWidth / 2);
+			let fuseParticleColor = this.width > 100 ? "rgba(34,34,68,0.3)" : "rgba(68,0,0,0.4)";
+			spawnParticles(this.x + 5, 5, this.y + this.height / 2, this.height / 2, 1, -3, 1, -3, 4, 4, 3, 1, fuseParticleColor, 0.1, 1);
+			spawnParticles(this.x + this.width - 5, 5, this.y + this.height / 2, this.height / 2, 1, 3, 1, -3, 4, 4, 3, 1, fuseParticleColor, 0.1, 1);
+			if (timerWidth < 100 && alert == false) {
+				sfxAlert.play();
+				alert = true;
+			}
 		}
-		else if (this.width < 1 && overOnce == false && start == true) {
+		else if (timerWidth < 1 && overOnce == false && start == true) {
 			inp.disabled = true;
 			inp.value = "";
 			inp.placeholder = "[GAME OVER]";
@@ -695,12 +754,17 @@ function rectangle(x, y, width, height, color) {
 			sfxGameOver.play();
 			overOnce = true;
 			
+			canvas.style.background = "#AAAACC";
 			rpstext.style['display'] = "none";
 			actext.style['display'] = "none";
-			retrytext.style['display'] = "flex";
+			restartButton.style['display'] = "flex";
 			dlog.style['display'] = "flex";
 		}
 	};
+	this.widthRestart = function() {
+		this.width = timerWidth;
+		this.x = (canvas.width / 2) - (timerWidth / 2);
+	}
 }
 
 // LOCKED LETTER MECHANIC --------
@@ -788,7 +852,9 @@ function animate() {
 }
 
 function tick() {
-	rectTimer.timeUpdate();
+	rectTimer.widthUpdate();
+	drain = 0.6 + (gameScore / 400);
+	timerWidth -= drain;
 }
 
 setInterval(tick, 15);
