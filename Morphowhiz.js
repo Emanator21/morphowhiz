@@ -93,38 +93,6 @@ function generateRPR() {
 		restricted = false;
 	}
 	
-    rpr.filtered = ((dictionary.filter(pick => !takenWords.includes(pick)).filter(hyph => !hyph.includes("-")).filter(apos => !apos.includes("'"))));
-	
-	if ((rpr.filtered).length == 0) {
-		prmpt.innerHTML = "[no more prompts]";
-	}
-	else {
-		rpr.pickWord = rpr.filtered[Math.floor(Math.random()*(rpr.filtered).length)];
-	};
-	
-	rpr.rdI = Math.floor(Math.random() * (rpr.pickWord).length); // initial prompt position
-	
-	if (gameScore >= 0 && gameScore <= 14) {
-		rpr.rl = Math.floor(Math.random() * 1 + 1.7); // raw length
-	} else if (gameScore >= 15 && gameScore <= 125) {
-		rpr.rl = Math.floor(Math.random() * 1.4 + 1.8);
-	} else if (gameScore >= 125 && gameScore <= 249) {
-		rpr.rl = Math.floor(Math.random() * 1.8 + 1.9);
-	} else if (gameScore >= 250 && gameScore <= 499) {
-		rpr.rl = Math.floor(Math.random() * 1.5 + 2.4);
-	} else if (gameScore >= 500) {
-		rpr.rl = Math.floor(Math.random() * 0.8 + 2.9);
-	}
-	
-	if (rpr.rdI + rpr.rl > rpr.pickWord.length) {
-		rpr.rdF = rpr.rdI - (rpr.rl - 1); // final prompt position
-	}
-	else {
-		rpr.rdF = rpr.rdI;
-	}
-	rpr.prompt = (rpr.pickWord).substring((rpr.rdF), (rpr.rdF + rpr.rl));
-	clearTimeout(dlyPromptSA);
-	
 	lockedLetter = " ";
 	if (restricted == true) {
 		let lockThres = (Math.random() * 0.35) + 0.6;
@@ -139,6 +107,42 @@ function generateRPR() {
 		lockTextTop.style['display'] = "none";
 		lockTextBottom.style['display'] = "none";
 	}
+	
+    rpr.filtered = ((dictionary.filter(pick => !takenWords.includes(pick)).filter(hyph => !hyph.includes("-")).filter(apos => !apos.includes("'")).filter(lock => !lock.includes(lockedLetter))));
+	
+	if ((rpr.filtered).length == 0) {
+		prmpt.innerHTML = "[no more prompts]";
+	}
+	else {
+		rpr.pickWord = rpr.filtered[Math.floor(Math.random()*(rpr.filtered).length)];
+	};
+	
+	rpr.rdI = Math.floor(Math.random() * (rpr.pickWord).length); // initial prompt position
+	
+	if (gameScore >= 0 && gameScore <= 14) {
+		rpr.rl = Math.floor(Math.random() * 1 + 1.7); // raw length
+	} else if (gameScore >= 15 && gameScore <= 69) {
+		rpr.rl = Math.floor(Math.random() * 1.4 + 1.8);
+	} else if (gameScore >= 70 && gameScore <= 139) {
+		rpr.rl = Math.floor(Math.random() * 1.8 + 1.9);
+	} else if (gameScore >= 140 && gameScore <= 279) {
+		rpr.rl = Math.floor(Math.random() * 1.5 + 2.4);
+	} else if (gameScore >= 280) {
+		rpr.rl = Math.floor(Math.random() * 0.8 + 2.9);
+	}
+	
+	if (gameScore >= 560 && Math.random() > 0.5 && rngLock > 1) {
+		rngLock--;
+	}
+	
+	if (rpr.rdI + rpr.rl > rpr.pickWord.length) {
+		rpr.rdF = rpr.rdI - (rpr.rl - 1); // final prompt position
+	}
+	else {
+		rpr.rdF = rpr.rdI;
+	}
+	rpr.prompt = (rpr.pickWord).substring((rpr.rdF), (rpr.rdF + rpr.rl));
+	clearTimeout(dlyPromptSA);
 	
 	if ((rpr.filtered).length == 0) {
 		prmpt.style['font-size'] = "25px";
@@ -193,7 +197,7 @@ document.body.appendChild(ttl2);
 
 let ttl3 = document.createElement("div")
 ttl3.id = "title3"
-ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10)"
+ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10.1)"
 ttl3.style = "font-family: Lexend Bold; color: #4444AA; font-size: 10px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -390px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl3);
 
@@ -686,6 +690,8 @@ restartButton.addEventListener("click", () => {
 	restartButton.style['display'] = "none";
 	dlog.style['display'] = "none";
 	acguidetext.style['display'] = "flex";
+	lockTextTop.style['display'] = "none";
+	lockTextBottom.style['display'] = "none";
 	solcount.innerHTML = "";
 	
 	const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
