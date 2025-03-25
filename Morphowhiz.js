@@ -76,12 +76,12 @@ var rpr = {}; // raw prompt
 var solutionCount;
 
 // probably the most common to least common
-var charList = ["E","I","A","O","N","S","R","T","L","C","U","P","D","M","H","G","Y","B","F","V","K","W","Z","X","Q","Z"];
+var charList = ["E","I","A","O","N","S","R","T","L","C","U","P","D","M","H","G","Y","B","F","V","K","W","J","X","Q","Z"];
 
 function generateRPR() {
 	timerWidth = canvas.width;
 	
-	if (gameScore % rngLock == 0 && gameScore > 50) {
+	if (gameScore % rngLock === 0 && gameScore > 50) {
 		restricted = true;
 		if (Math.random() > 0.5 && rngLock > 1) {
 			rngLock--;
@@ -91,10 +91,10 @@ function generateRPR() {
 	}
 	
 	lockedLetter = " ";
-	if (restricted == true) {
+	if (restricted === true) {
 		let lockThres = (Math.random() * 0.35) + 0.6;
 		for (let i = 0; i < charList.length; i++) {
-			if ((rpr.pickWord.indexOf(charList[i]) === -1 && Math.random() > lockThres || (i == charList.length - 1))) {
+			if ((rpr.pickWord.indexOf(charList[i]) === -1 && Math.random() > lockThres || (i === charList.length - 1))) {
 				lockedLetter = charList[i];
 				break;
 			}
@@ -107,7 +107,7 @@ function generateRPR() {
 	
     rpr.filtered = ((dictionary.filter(pick => !takenWords.includes(pick)).filter(hyph => !hyph.includes("-")).filter(apos => !apos.includes("'")).filter(lock => !lock.includes(lockedLetter))));
 	
-	if ((rpr.filtered).length == 0) {
+	if ((rpr.filtered).length === 0) {
 		prmpt.innerHTML = "[no more prompts]";
 	}
 	else {
@@ -141,7 +141,7 @@ function generateRPR() {
 	rpr.prompt = (rpr.pickWord).substring((rpr.rdF), (rpr.rdF + rpr.rl));
 	clearTimeout(dlyPromptSA);
 	
-	if ((rpr.filtered).length == 0) {
+	if ((rpr.filtered).length === 0) {
 		prmpt.style['font-size'] = "25px";
 	}
 	else {
@@ -156,7 +156,7 @@ function generateRPR() {
 	var solutionCount = 0;
 	
 	for (let i = 0; i < dictionary.length; i++) {
-		if (dictionary[i].includes(rpr.prompt) && dictionary[i].indexOf(lockedLetter) == -1) {
+		if (dictionary[i].includes(rpr.prompt) && dictionary[i].indexOf(lockedLetter) === -1) {
 			solutionCount += 1;
 		}
 	}
@@ -195,7 +195,7 @@ document.body.appendChild(ttl2);
 
 let ttl3 = document.createElement("div")
 ttl3.id = "title3"
-ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10.2)"
+ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10.2b)"
 ttl3.style = "font-family: Lexend Bold; color: #4444AA; font-size: 10px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -390px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl3);
 
@@ -344,7 +344,7 @@ function alphaLetter(letter, posX, posY) {
 var letterTakenArray = new Array(26).fill(false);
 
 function checkAlphaClear() {
-	if (letterTakenArray.every(function(elem) { return elem == true })) {
+	if (letterTakenArray.every(function(elem) { return elem === true })) {
 			sfxAlphaClear.currentTime = 0;
 			sfxAlphaClear.addEventListener("canplaythrough", sfxAlphaClear.play());
 			gameScore += 52;
@@ -384,11 +384,11 @@ function checkAlphaLetter() {
 			var letterTakenBefore = letterTakenArray[letterIndex];
 			letterTakenArray[letterIndex] = true;
 		
-			if (letterTakenBefore == false && letterTakenArray[letterIndex] == true) {
+			if (letterTakenBefore === false && letterTakenArray[letterIndex] === true) {
 				sfxAlphaLetter.currentTime = 0;
 				sfxAlphaLetter.addEventListener("canplaythrough", sfxAlphaLetter.play());
 				for (let i = 0; i < letters.length; i++) {
-				if (document.getElementById(letterId).id == letters[i][0]) {
+				if (document.getElementById(letterId).id === letters[i][0]) {
 						spawnParticles(canvas.width / 2 + (letters[i][1] / 2), 0, canvas.height / 2 + (letters[i][2] / 2), 0, 1, 0, 0, 0, 0, 15, 0, 0.5, "rgba(15,15,90,0.5)", 0, 0);
 					}
 				}
@@ -447,7 +447,7 @@ inputUpdate.addEventListener('input', () => {
 	scr.style.color = "#666699";
 });
 inputUpdate.addEventListener('focus', () => {
-	if (start == false) {
+	if (start === false) {
 		generateRPR();
 		start = true;
 		prmpt.innerHTML = rpr.prompt;
@@ -555,7 +555,7 @@ submit.addEventListener("keyup", function(event) {
 				inputPosAnimateW();
 				sfxWrong.currentTime = 0;
 				sfxWrong.addEventListener("canplaythrough", sfxWrong.play());
-				if (guideChecked == false) {
+				if (guideChecked === false) {
 					guidetext.innerHTML = "Word already used.";
 					guideChecked = true;
 				}
@@ -578,16 +578,16 @@ submit.addEventListener("keyup", function(event) {
 			inputPosAnimateW();
 			sfxWrong.currentTime = 0;
 			sfxWrong.addEventListener("canplaythrough", sfxWrong.play());
-			if (guideChecked == false) {
+			if (guideChecked === false) {
 				guidetext.innerHTML = "Not in dictionary.";
 				guideChecked = true;
 			}
 			checked = true;
 		};
 		
-		if (checked == true) {
+		if (checked === true) {
 			let answer = (document.getElementById("inputBox").value.toUpperCase());
-			if (answer.includes(rpr.prompt) && validMatch == true && duplicate == false && answer.indexOf(lockedLetter) === -1) {
+			if (answer.includes(rpr.prompt) && validMatch === true && duplicate === false && answer.indexOf(lockedLetter) === -1) {
 				event.preventDefault();
 				document.getElementById("submitInput").click();
 				la.innerHTML = document.getElementById("inputBox").value.toUpperCase();
@@ -600,7 +600,7 @@ submit.addEventListener("keyup", function(event) {
 					spawnParticles(canvas.width / 2, canvas.width / 2, canvas.height, 10, 1, 0, 2, 2, 1, 3, 2, 0.03, "rgba(50,50,100,0.5)", -0.01, 1);
 				}
 				
-				if (rarePrompt == true) {
+				if (rarePrompt === true) {
 					gameScore += 10;
 					scr.style.color = "#DD7755";
 					rpstext.style['display'] = "flex";
@@ -616,7 +616,7 @@ submit.addEventListener("keyup", function(event) {
 				generateRPR();
 				rectTimer = new rectangle();
 				
-				if ((rpr.filtered).length == 0) {}
+				if ((rpr.filtered).length === 0) {}
 				else {
 					prmpt.innerHTML = rpr.prompt;
 				}
@@ -656,7 +656,7 @@ submit.addEventListener("keyup", function(event) {
 				
 				sfxWrong.currentTime = 0;
 				sfxWrong.addEventListener("canplaythrough", sfxWrong.play());
-				if (guideChecked == false) {
+				if (guideChecked === false) {
 					guidetext.innerHTML = "Does not follow the prompt.";
 					guideChecked = true;
 				}
@@ -709,6 +709,7 @@ restartButton.addEventListener("click", () => {
 	lockTextBottom.style['display'] = "none";
 	solcount.innerHTML = "";
 	
+	letterTakenArray.fill(false);
 	const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
 			"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]	
 	for (const letterId of letters) {
@@ -755,19 +756,19 @@ function rectangle(x, y, width, height, color) {
 		ctx.fillRect(this.x, this.y, this.width, this.height);
 	};
 	this.widthUpdate = function() {
-		if (timerWidth > 0 && start == true) {
+		if (timerWidth > 0 && start === true) {
 			this.width = timerWidth;
 			this.x = (canvas.width / 2) - (timerWidth / 2);
 			let fuseParticleColor = this.width > 100 ? "rgba(34,34,68,0.3)" : "rgba(68,0,0,0.4)";
 			spawnParticles(this.x + 5, 5, this.y + this.height / 2, this.height / 2, 1, -3, 1, -3, 4, 4, 3, 1, fuseParticleColor, 0.1, 1);
 			spawnParticles(this.x + this.width - 5, 5, this.y + this.height / 2, this.height / 2, 1, 3, 1, -3, 4, 4, 3, 1, fuseParticleColor, 0.1, 1);
-			if (timerWidth < 100 && alert == false) {
+			if (timerWidth < 100 && alert === false) {
 				sfxAlert.currentTime = 0;
 				sfxAlert.addEventListener("canplaythrough", sfxAlert.play());
 				alert = true;
 			}
 		}
-		else if (timerWidth < 1 && overOnce == false && start == true) {
+		else if (timerWidth < 1 && overOnce === false && start === true) {
 			inp.disabled = true;
 			inp.value = "";
 			inp.placeholder = "[GAME OVER]";
@@ -817,7 +818,7 @@ function dotCF(x, y, dx, dy, r, rDecay, color, gravity, slip) {
 }
 
 function graphicsUpdate() {
-	if ((Math.random() * 10) > 5 && start == true && overOnce == false) {
+	if ((Math.random() * 10) > 5 && start === true && overOnce === false) {
 		spawnParticles(canvas.width / 2, canvas.width / 2, canvas.height, 10, 1, 0, -2, -2, 1, 1, 0.5, 0.02, "rgba(50,50,100,1)", -0.001, 1);
 	}
 	
