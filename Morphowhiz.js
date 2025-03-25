@@ -1,8 +1,5 @@
 // LOAD VARIABLES AND ASSETS -------
 
-function loadJS() {
-}
-
 // DICTIONARIES USED: Infochimps Word List, Collins Official Scrabble Words 2019, Enhanced North American Benchmark Lexicon 1, Letterpress 1.1, Word Bomb English Dictionary, Manually Inserted/Removed Words
 
 document.body.style.backgroundColor = "#000022";
@@ -55,8 +52,8 @@ sfxRestart.volume = 0.7;
 var sfxRestrict = new Audio("morphoRestrict.wav");
 sfxRestrict.volume = 0.15;
 
-var sfxType = new Audio("morphoType.wav");
-sfxType.volume = 0.4;
+var sfxType1 = new Audio("morphoType.wav");
+sfxType1.volume = 0.4;
 
 var sfxType2 = new Audio("morphoType2.wav");
 sfxType2.volume = 0.4;
@@ -153,7 +150,8 @@ function generateRPR() {
 	};
 	
 	dlyPrompt = 1;
-	sfxPrompt.play();
+	sfxPrompt.currentTime = 0;
+	sfxPrompt.addEventListener("canplaythrough", sfxPrompt.play());
 	
 	var solutionCount = 0;
 	
@@ -174,7 +172,7 @@ function generateRPR() {
 		rarePrompt = false;
 	};
 	
-	acguidetext.style['display'] = "none";
+	guidetext.innerHTML = "New prompt.",
 	
 	spawnParticles(canvas.width / 2, 10, canvas.height * 0.4, 10, 20, 0, 10, 0, 10, 7, 3, 0.3, "rgba(100,100,200,0.5)", 0, 0.9);
 	
@@ -197,7 +195,7 @@ document.body.appendChild(ttl2);
 
 let ttl3 = document.createElement("div")
 ttl3.id = "title3"
-ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10.1)"
+ttl3.innerHTML = "(HTML/CSS/JS PROTOTYPE, v0.10.2)"
 ttl3.style = "font-family: Lexend Bold; color: #4444AA; font-size: 10px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: block; margin-top: -390px; padding: 0; text-align: center; display: flex; justify-content: center; align-items: center;"
 document.body.appendChild(ttl3);
 
@@ -244,11 +242,11 @@ dlog.innerHTML = "Download Log"
 dlog.style = "display: none; background-color: #333366; border: 2px solid #111122; width: 16ch; font-family: Lexend Bold; color: #111122; font-size: 12px; position: absolute; top: 50%; transform: translateY(-50%); bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 24px; margin: auto; margin-top: 110px; text-align: center; text-transform: uppercase; justify-content: center; align-items: center; z-index: 10;"
 document.body.appendChild(dlog);
 
-let acguidetext = document.createElement("div")
-acguidetext.id = "alphaClearGuideText"
-acguidetext.innerHTML = "Use all letters of the alphabet to get a bonus"
-acguidetext.style = "font-family: Lexend Bold; color: #555577; font-size: 15px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 210px; text-align: center; display: flex; justify-content: center; align-items: center;"
-document.body.appendChild(acguidetext);
+let guidetext = document.createElement("div")
+guidetext.id = "alphaClearGuideText"
+guidetext.innerHTML = "Use all letters of the alphabet to get a bonus."
+guidetext.style = "font-family: Lexend Bold; color: #555577; font-size: 15px; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin-top: 210px; text-align: center; display: flex; justify-content: center; align-items: center;"
+document.body.appendChild(guidetext);
 
 let rpstext = document.createElement("div")
 rpstext.id = "rarePromptText"
@@ -293,19 +291,19 @@ var letters = [];
 
 function spawnAllLetters() {
 	letters = [
-		["A", -360, 80],
-		["B", -300, 80],
-		["C", -240, 80],
-		["D", -180, 80],
-		["E", -120, 80],
-		["F", -60, 80],
-		["G", 0, 80],
-		["H", 60, 80],
-		["I", 120, 80],
-		["J", 180, 80],
-		["K", 240, 80],
-		["L", 300, 80],
-		["M", 360, 80],
+		["A", -360, 100],
+		["B", -300, 100],
+		["C", -240, 100],
+		["D", -180, 100],
+		["E", -120, 100],
+		["F", -60, 100],
+		["G", 0, 100],
+		["H", 60, 100],
+		["I", 120, 100],
+		["J", 180, 100],
+		["K", 240, 100],
+		["L", 300, 100],
+		["M", 360, 100],
 		["N", -360, 160],
 		["O", -300, 160],
 		["P", -240, 160],
@@ -348,7 +346,7 @@ var letterTakenArray = new Array(26).fill(false);
 function checkAlphaClear() {
 	if (letterTakenArray.every(function(elem) { return elem == true })) {
 			sfxAlphaClear.currentTime = 0;
-			sfxAlphaClear.play();
+			sfxAlphaClear.addEventListener("canplaythrough", sfxAlphaClear.play());
 			gameScore += 52;
 			scr.innerHTML = gameScore;
 			scr.style.color = "#5599BB",
@@ -388,7 +386,7 @@ function checkAlphaLetter() {
 		
 			if (letterTakenBefore == false && letterTakenArray[letterIndex] == true) {
 				sfxAlphaLetter.currentTime = 0;
-				sfxAlphaLetter.play();
+				sfxAlphaLetter.addEventListener("canplaythrough", sfxAlphaLetter.play());
 				for (let i = 0; i < letters.length; i++) {
 				if (document.getElementById(letterId).id == letters[i][0]) {
 						spawnParticles(canvas.width / 2 + (letters[i][1] / 2), 0, canvas.height / 2 + (letters[i][2] / 2), 0, 1, 0, 0, 0, 0, 15, 0, 0.5, "rgba(15,15,90,0.5)", 0, 0);
@@ -412,26 +410,29 @@ window.onload = () => {
 			e.preventDefault();
 		}
 		else {
-				var picker = Math.floor(Math.random() * 5);
-			if (picker == 0) {
-				sfxType.currentTime = 0;
-				sfxType.play();
-			}
-			else if (picker == 1) {
-				sfxType2.currentTime = 0;
-				sfxType2.play();
-			}
-			else if (picker == 2) {
-				sfxType3.currentTime = 0;
-				sfxType3.play();
-			}
-			else if (picker == 3) {
-				sfxType4.currentTime = 0;
-				sfxType4.play();
-			}
-			else if (picker == 4) {
-				sfxType5.currentTime = 0;
-				sfxType5.play();
+			guidetext.innerHTML = "Typing...";
+			let picker = Math.floor(Math.random() * 5);
+			switch(picker) {
+				case 0:
+					sfxType1.currentTime = 0;
+					sfxType1.addEventListener("canplaythrough", sfxType1.play());
+					break;
+				case 1:
+					sfxType2.currentTime = 0;
+					sfxType2.addEventListener("canplaythrough", sfxType2.play());
+					break;
+				case 2:
+					sfxType3.currentTime = 0;
+					sfxType3.addEventListener("canplaythrough", sfxType3.play());
+					break;
+				case 3:
+					sfxType4.currentTime = 0;
+					sfxType4.addEventListener("canplaythrough", sfxType4.play());
+					break;
+				case 4:
+					sfxType5.currentTime = 0;
+					sfxType5.addEventListener("canplaythrough", sfxType5.play());
+					break;
 			};
 		}
 	}
@@ -536,11 +537,13 @@ function inputPosAnimateW() {
 var validMatch = false;
 var duplicate = false;
 var checked = false;
+var guideChecked = false;
 var submit = document.getElementById("inputBox");
 submit.addEventListener("keyup", function(event) {
+	guideChecked = false;
 	if (event.keyCode === 13) {
 		sfxEnter.currentTime = 0;
-		sfxEnter.play();
+		sfxEnter.addEventListener("canplaythrough", sfxEnter.play());
 		
 		if (dictionary.indexOf((inp.value).toUpperCase()) !== -1) {
 			validMatch = true;
@@ -551,7 +554,11 @@ submit.addEventListener("keyup", function(event) {
 				dlyInput = 1;
 				inputPosAnimateW();
 				sfxWrong.currentTime = 0;
-				sfxWrong.play();
+				sfxWrong.addEventListener("canplaythrough", sfxWrong.play());
+				if (guideChecked == false) {
+					guidetext.innerHTML = "Word already used.";
+					guideChecked = true;
+				}
 				checked = true;
 			}
 			else {
@@ -570,7 +577,11 @@ submit.addEventListener("keyup", function(event) {
 			dlyInput = 1;
 			inputPosAnimateW();
 			sfxWrong.currentTime = 0;
-			sfxWrong.play();
+			sfxWrong.addEventListener("canplaythrough", sfxWrong.play());
+			if (guideChecked == false) {
+				guidetext.innerHTML = "Not in dictionary.";
+				guideChecked = true;
+			}
 			checked = true;
 		};
 		
@@ -594,7 +605,7 @@ submit.addEventListener("keyup", function(event) {
 					scr.style.color = "#DD7755";
 					rpstext.style['display'] = "flex";
 					sfxRare.currentTime = 0;
-					sfxRare.play();
+					sfxRare.addEventListener("canplaythrough", sfxRare.play());
 				}
 				
 				scr.innerHTML = gameScore;
@@ -611,7 +622,7 @@ submit.addEventListener("keyup", function(event) {
 				}
 				
 				sfxCorrect.currentTime = 0;
-				sfxCorrect.play();
+				sfxCorrect.addEventListener("canplaythrough", sfxCorrect.play());
 				
 				inp.style['margin-top'] = "215px";
 				clearTimeout(dlyInputPAC);
@@ -644,7 +655,11 @@ submit.addEventListener("keyup", function(event) {
 				inputPosAnimateW();
 				
 				sfxWrong.currentTime = 0;
-				sfxWrong.play();
+				sfxWrong.addEventListener("canplaythrough", sfxWrong.play());
+				if (guideChecked == false) {
+					guidetext.innerHTML = "Does not follow the prompt.";
+					guideChecked = true;
+				}
 				
 				match = false;
 				checked = false;
@@ -689,7 +704,7 @@ restartButton.addEventListener("click", () => {
 	canvas.style.background = "#BBBBDD";
 	restartButton.style['display'] = "none";
 	dlog.style['display'] = "none";
-	acguidetext.style['display'] = "flex";
+	guidetext.innerHTML = "Use all letters of the alphabet to get a bonus.";
 	lockTextTop.style['display'] = "none";
 	lockTextBottom.style['display'] = "none";
 	solcount.innerHTML = "";
@@ -710,7 +725,7 @@ restartButton.addEventListener("click", () => {
 	la.innerHTML = "[last answer goes here]";
 	scr.innerHTML = "0";
 	
-	sfxRestart.play();
+	sfxRestart.addEventListener("canplaythrough", sfxRestart.play());
 });
 
 downloadLogButton.addEventListener("click", () => {
@@ -747,7 +762,8 @@ function rectangle(x, y, width, height, color) {
 			spawnParticles(this.x + 5, 5, this.y + this.height / 2, this.height / 2, 1, -3, 1, -3, 4, 4, 3, 1, fuseParticleColor, 0.1, 1);
 			spawnParticles(this.x + this.width - 5, 5, this.y + this.height / 2, this.height / 2, 1, 3, 1, -3, 4, 4, 3, 1, fuseParticleColor, 0.1, 1);
 			if (timerWidth < 100 && alert == false) {
-				sfxAlert.play();
+				sfxAlert.currentTime = 0;
+				sfxAlert.addEventListener("canplaythrough", sfxAlert.play());
 				alert = true;
 			}
 		}
@@ -757,8 +773,10 @@ function rectangle(x, y, width, height, color) {
 			inp.placeholder = "[GAME OVER]";
 			solcount.style.color = "#444488";
 			solcount.innerHTML = "GAME OVER!  |  Word Picked: " + rpr.pickWord;
-			sfxGameOver.play();
+			sfxGameOver.currentTime = 0;
+			sfxGameOver.addEventListener("canplaythrough", sfxGameOver.play());
 			overOnce = true;
+			guidetext.innerHTML = "";
 			
 			canvas.style.background = "#AAAACC";
 			rpstext.style['display'] = "none";
@@ -776,7 +794,7 @@ function rectangle(x, y, width, height, color) {
 // LOCKED LETTER MECHANIC --------
 function letterRestrict(lock) {
 	sfxRestrict.currentTime = 0;
-	sfxRestrict.play();
+	sfxRestrict.addEventListener("canplaythrough", sfxRestrict.play());
 	
 	lockTextBottom.textContent = lock;
 	
